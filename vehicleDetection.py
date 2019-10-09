@@ -1,31 +1,61 @@
 import cv2
+import numpy as np
 
-# capture frames from a video
-cap = cv2.VideoCapture('video.mp4')
+class TrafficLight():
+    def __init__(self):
+        self.counter = 0
+        self.state = True
+    def turnRed(self, time):
+        """
 
-# Trained XML classifiers describes some features of some object we want to detect
-car_cascade = cv2.CascadeClassifier('cars.xml')
+        :param time:
+        :return:
+        """
+        self.state = False
+        self.counter = time
 
-# loop runs if capturing has been initialized.
-while True:
-    # reads frames from a video
-    ret, frames = cap.read()
+    def turnGreen(self, time):
+        self.state = True
+        self.counter = time
 
-    # convert to gray scale of each frames
-    gray = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
 
-    # Detects cars of different sizes in the input image
-    cars = car_cascade.detectMultiScale(gray, 1.1, 1)
 
-    # To draw a rectangle in each cars
-    for (x, y, w, h) in cars:
-        cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
-        # Display frames in a window
-    cv2.imshow('video2', frames)
+class CountVehiclesInFrame():
+    def __init__(self, detector_path = "cars.xml"):
+        ## load vehicle detection classifier
+        self.detector = cv2.CascadeClassifier(detector_path)
 
-    if cv2.waitKey(33) == 27:
-        break
+    def vehiclePositions(self, frame):
+        """
+        To find the position of all cars in image
+        :param frame: a 3-channel image
+        :return: positions of cars denoted by 4-tuple
+        """
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        cars = self.detector.detectMultiScale(gray, 1.1, 1)
+        return cars
 
-# De-allocate any associated memory usage
-cv2.destroyAllWindows()
+    def showVideo(self, video_path = "video.mp4"):
+        """
+        streams a video and counts the number of cars in image
+        :param video_path:
+        :return: None
+        """
+        cap = cv2.VideoCapture(video_path)
+        while True:
+            ret, frames = cap.read()
+            cars = self.vehiclePositions(frames)
+            for (x, y, w, h) in cars:
+                cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.imshow('video2', frames)
+            if cv2.waitKey(33) == 27:
+                break
+        cv2.destroyAllWindows()
+
+def main():
+    testing = CountVehiclesInFrame()
+    testing.showVideo()
+
+if  __name__ == "__main__":
+    main()
