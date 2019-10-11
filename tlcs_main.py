@@ -87,7 +87,7 @@ def save_graphs(sim_runner, total_episodes, plot_path):
 if __name__ == "__main__":
 
     # --- TRAINING OPTIONS ---
-    gui = False
+    gui = True
     total_episodes = 100
     gamma = 0.75
     batch_size = 100
